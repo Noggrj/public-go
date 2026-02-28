@@ -1,0 +1,1 @@
+docker run --rm -e SONAR_HOST_URL="http://sonarqube:9000" -e SONAR_SCANNER_OPTS="-Dsonar.projectKey=go-garage-dev" -e SONAR_TOKEN="sqp_d7106c8e077fc349054cda27d7bb90b875e7b2f3" -v "${PWD}:/usr/src" --network go_autorepair-net sonarsource/sonar-scanner-cli

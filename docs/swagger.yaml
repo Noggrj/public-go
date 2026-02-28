@@ -1,0 +1,797 @@
+basePath: /
+definitions:
+  domain.Role:
+    enum:
+    - admin
+    - manager
+    - employee
+    type: string
+    x-enum-varnames:
+    - RoleAdmin
+    - RoleManager
+    - RoleEmployee
+  domain.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      password:
+        description: Hashed
+        type: string
+      role:
+        $ref: '#/definitions/domain.Role'
+      updatedAt:
+        type: string
+    type: object
+  errors.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  http.CreateClientRequest:
+    properties:
+      document:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+    type: object
+  http.CreateOrderItemRequest:
+    properties:
+      quantity:
+        type: integer
+      ref_id:
+        type: string
+      type:
+        description: '"service" or "part"'
+        type: string
+    type: object
+  http.CreateOrderRequest:
+    properties:
+      client_id:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/http.CreateOrderItemRequest'
+        type: array
+      vehicle_id:
+        type: string
+    type: object
+  http.CreatePartRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      stock_qty:
+        type: integer
+    type: object
+  http.CreateServiceRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+    type: object
+  http.CreateVehicleRequest:
+    properties:
+      brand:
+        type: string
+      client_id:
+        type: string
+      model:
+        type: string
+      plate:
+        type: string
+      year:
+        type: integer
+    type: object
+  http.OrderTrackingItem:
+    properties:
+      name:
+        type: string
+      quantity:
+        type: integer
+      total:
+        type: number
+    type: object
+  http.OrderTrackingResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/http.OrderTrackingItem'
+        type: array
+      status:
+        type: string
+      total:
+        type: number
+    type: object
+  http.UpdateStatusRequest:
+    properties:
+      status:
+        type: string
+    type: object
+  http.loginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  http.loginResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+    type: object
+  http.refreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    type: object
+  http.registerRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@autorepair.com
+    name: API Support
+  description: API for AutoRepair Shop Management System
+  license:
+    name: Proprietary
+    url: http://autorepair.com/license
+  termsOfService: http://swagger.io/terms/
+  version: "1.0"
+paths:
+  /admin/clients:
+    get:
+      consumes:
+      - application/json
+      description: List all clients
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: List Clients
+      tags:
+      - clients
+    post:
+      consumes:
+      - application/json
+      description: Register a new client
+      parameters:
+      - description: Client Details
+        in: body
+        name: client
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateClientRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid input
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create Client
+      tags:
+      - clients
+  /admin/orders:
+    post:
+      consumes:
+      - application/json
+      description: Create a new service order
+      parameters:
+      - description: Order Request
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid input
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create Order
+      tags:
+      - orders
+  /admin/orders/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid order ID
+          schema:
+            type: string
+        "404":
+          description: Order not found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get Order
+      tags:
+      - orders
+  /admin/orders/{id}/approve:
+    patch:
+      consumes:
+      - application/json
+      description: Approve an order and reserve parts
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid order ID
+          schema:
+            type: string
+        "409":
+          description: Insufficient stock
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Approve Order
+      tags:
+      - orders
+  /admin/orders/{id}/budget:send:
+    post:
+      consumes:
+      - application/json
+      description: Send budget to the client for approval
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid order ID
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Send Budget
+      tags:
+      - orders
+  /admin/orders/{id}/deliver:
+    post:
+      consumes:
+      - application/json
+      description: Mark order as delivered to client
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid order ID
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Deliver Order
+      tags:
+      - orders
+  /admin/orders/{id}/diagnosis:start:
+    post:
+      consumes:
+      - application/json
+      description: Start the diagnosis process for an order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid order ID
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Start Diagnosis
+      tags:
+      - orders
+  /admin/orders/{id}/finish:
+    post:
+      consumes:
+      - application/json
+      description: Mark order as finished (Completed)
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid order ID
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Finish Order
+      tags:
+      - orders
+  /admin/orders/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: Update status of an order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New Status
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/http.UpdateStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid input
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update Order Status
+      tags:
+      - orders
+  /admin/parts:
+    get:
+      consumes:
+      - application/json
+      description: List all parts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: List Parts
+      tags:
+      - parts
+    post:
+      consumes:
+      - application/json
+      description: Register a new part
+      parameters:
+      - description: Part Details
+        in: body
+        name: part
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreatePartRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid input
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create Part
+      tags:
+      - parts
+  /admin/reports/avg-execution-time:
+    get:
+      consumes:
+      - application/json
+      description: Get average execution time of orders (In Execution -> Completed)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Report Avg Execution Time
+      tags:
+      - reports
+  /admin/reports/revenue:
+    get:
+      consumes:
+      - application/json
+      description: Get total revenue report
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Report Revenue
+      tags:
+      - reports
+  /admin/services:
+    get:
+      consumes:
+      - application/json
+      description: List all services
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: List Services
+      tags:
+      - services
+    post:
+      consumes:
+      - application/json
+      description: Register a new service (labor)
+      parameters:
+      - description: Service Details
+        in: body
+        name: service
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateServiceRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid input
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create Service
+      tags:
+      - services
+  /admin/vehicles:
+    get:
+      consumes:
+      - application/json
+      description: List vehicles by client
+      parameters:
+      - description: Client ID
+        in: query
+        name: client_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "400":
+          description: Invalid client ID
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: List Vehicles
+      tags:
+      - vehicles
+    post:
+      consumes:
+      - application/json
+      description: Register a new vehicle
+      parameters:
+      - description: Vehicle Details
+        in: body
+        name: vehicle
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateVehicleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid input
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create Vehicle
+      tags:
+      - vehicles
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with email and password to get a JWT token
+      parameters:
+      - description: Login Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.loginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http.loginResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: Login
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Use a refresh token to get a new access token
+      parameters:
+      - description: Refresh Token Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.refreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http.loginResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: Refresh Access Token
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with name, email, password and role
+      parameters:
+      - description: Register Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.registerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - auth
+  /orders/{id}/track:
+    get:
+      consumes:
+      - application/json
+      description: Track the status of an order (Public)
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/http.OrderTrackingResponse'
+        "400":
+          description: Invalid order ID
+          schema:
+            type: string
+        "404":
+          description: Order not found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Track Order
+      tags:
+      - public
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

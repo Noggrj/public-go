@@ -1,0 +1,60 @@
+# Documentação dos Endpoints de Orders (Ordens de Serviço)
+
+## Rotas Administrativas (/admin/orders)
+
+### 1. Criar Ordem de Serviço
+**Método:** `POST /admin/orders`
+**Descrição:** Cria uma nova ordem de serviço inicial no sistema.
+**Status Inicial:** `Received` (Recebida)
+**Payload:**
+- `client_id`: ID do cliente
+- `vehicle_id`: ID do veículo
+- `description`: Descrição inicial do problema
+
+### 2. Iniciar Diagnóstico
+**Método:** `POST /admin/orders/{id}/diagnosis:start`
+**Descrição:** Marca o início do processo de diagnóstico do veículo.
+**Transição:** `Received` -> `In diagnosis`
+
+### 3. Enviar Orçamento
+**Método:** `POST /admin/orders/{id}/budget:send`
+**Descrição:** Finaliza o diagnóstico e envia o orçamento para aprovação do cliente.
+**Transição:** `In diagnosis` -> `Awaiting approval`
+**Ações:**
+- Calcula o total de peças e serviços adicionados.
+- Dispara notificação (email) para o cliente com o orçamento.
+
+### 4. Aprovar Orçamento
+**Método:** `PATCH /admin/orders/{id}/approve`
+**Descrição:** Registra a aprovação do orçamento pelo cliente e inicia a execução.
+**Transição:** `Awaiting approval` -> `In execution`
+**Ações:**
+- Reserva as peças no estoque (decrementa a quantidade disponível).
+- Define a data de início da execução (`StartedAt`).
+
+### 5. Finalizar Serviço
+**Método:** `POST /admin/orders/{id}/finish`
+**Descrição:** Marca a execução dos serviços como concluída.
+**Transição:** `In execution` -> `Completed`
+**Ações:**
+- Define a data de término (`FinishedAt`).
+- Notifica o cliente que o veículo está pronto.
+
+### 6. Entregar Veículo
+**Método:** `POST /admin/orders/{id}/deliver`
+**Descrição:** Registra a entrega do veículo ao cliente e finaliza o ciclo da ordem.
+**Transição:** `Completed` -> `Delivered`
+
+### 7. Atualizar Status (Genérico)
+**Método:** `PATCH /admin/orders/{id}/status`
+**Descrição:** Permite atualizar manualmente o status de uma ordem (uso geral).
+**Payload:**
+- `status`: Novo status desejado.
+
+---
+
+## Rotas Públicas (/orders)
+
+### 8. Rastrear Ordem
+**Método:** `GET /orders/{id}/track`
+**Descrição:** Permite que o cliente consulte o status atual, itens e valores da sua ordem de serviço sem necessidade de autenticação administrativa.

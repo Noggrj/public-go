@@ -1,0 +1,26 @@
+# ---------------------------------------------------------------
+# Example terraform.tfvars — NEVER commit this file to git
+# Copy to terraform.tfvars and fill in real values
+# ---------------------------------------------------------------
+
+aws_region  = "us-east-1"
+environment = "production"
+
+# EKS
+cluster_name    = "autorepair-cluster"
+cluster_version = "1.29"
+
+# Node Group
+node_instance_types = ["t3.medium"]
+node_desired_size   = 2
+node_min_size       = 1
+node_max_size       = 5
+
+# RDS
+db_name           = "autorepair"
+db_username       = "postgres"
+db_password       = "CHANGE_ME_STRONG_PASSWORD"
+db_instance_class = "db.t3.micro"
+
+# Application
+jwt_secret = "CHANGE_ME_JWT_SECRET"

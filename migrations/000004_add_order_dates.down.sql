@@ -1,0 +1,2 @@
+ALTER TABLE orders DROP COLUMN IF EXISTS started_at;
+ALTER TABLE orders DROP COLUMN IF EXISTS finished_at;

@@ -1,0 +1,853 @@
+{
+	"info": {
+		"_postman_id": "f404f217-6111-4ce8-8216-29f68081dd77",
+		"name": "Auto Repair Shop API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "49376594",
+		"_collection_link": "https://aigreengrowth-27628.postman.co/workspace/greengrowth-A.I's-Workspace~dd654709-f12f-4dce-83ef-7d18a662073b/collection/49376594-f404f217-6111-4ce8-8216-29f68081dd77?action=share&source=collection_link&creator=49376594"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Admin User\",\n    \"email\": \"admin23@autorepair.com\",\n    \"password\": \"admin1234\",\n    \"role\": \"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/auth/register"
+					},
+					"response": []
+				},
+				{
+					"name": "Login (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"token\", jsonData.access_token);",
+									"pm.environment.set(\"refresh_token\", jsonData.refresh_token);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin2@autorepair.com\",\n    \"password\": \"admin1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/auth/login"
+					},
+					"response": [
+						{
+							"name": "Successful Login",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"admin@autorepair.com\",\n    \"password\": \"admin123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{base_url}}/auth/login"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [],
+							"cookie": [],
+							"body": "{\n    \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"refresh_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"expires_in\": 900\n}"
+						}
+					]
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"token\", jsonData.access_token);",
+									"if (jsonData.refresh_token) {",
+									"    pm.environment.set(\"refresh_token\", jsonData.refresh_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refresh_token\": \"{{refresh_token}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/auth/refresh"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin - Clients",
+			"item": [
+				{
+					"name": "List Clients",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{base_url}}/admin/clients"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Client",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"client_id\", jsonData.ID);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Matheus da Silva Nogueira\",\n    \"document\": \"17650905713\",\n    \"email\": \"john@example.com\",\n    \"phone\": \"3192009-3067\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/admin/clients"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Client",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Matheus Updated\",\n    \"phone\": \"3199999-8888\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/admin/clients/{{client_id}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Client",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": "{{base_url}}/admin/clients/{{client_id}}"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin - Vehicles",
+			"item": [
+				{
+					"name": "List Vehicles by Client",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/vehicles?client_id={{client_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"vehicles"
+							],
+							"query": [
+								{
+									"key": "client_id",
+									"value": "{{client_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Vehicle",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"client_id\": \"{{client_id}}\",\n    \"plate\": \"ABC4321\",\n    \"brand\": \"Renault\",\n    \"model\": \"Sandero\",\n    \"year\": 2014\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/admin/vehicles"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Vehicle",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"plate\": \"XYZ-5678\",\n    \"color\": \"Silver\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/admin/vehicles/{{vehicle_id}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Vehicle",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": "{{base_url}}/admin/vehicles/{{vehicle_id}}"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin - Services",
+			"item": [
+				{
+					"name": "Create Service",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Troca de óleo\",\n    \"description\": \"Troca de oleo 2025\",\n    \"price\": 300.00\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/admin/services"
+					},
+					"response": []
+				},
+				{
+					"name": "List Services",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{base_url}}/admin/services"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin - Parts",
+			"item": [
+				{
+					"name": "Create Part",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Filtro de oleo\",\n    \"description\": \"Filtro de oleo sandero\",\n    \"price\": 50.50,\n    \"stock_qty\": 100\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/admin/parts"
+					},
+					"response": []
+				},
+				{
+					"name": "List Parts",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{base_url}}/admin/parts"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin - Orders",
+			"item": [
+				{
+					"name": "List Active Orders",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{base_url}}/admin/orders",
+						"description": "### GET /admin/orders\n\nLista ordens de serviço ativas (exclui Completed e Delivered), ordenadas por prioridade de status:\n1. In Execution\n2. Awaiting Approval\n3. In Diagnosis\n4. Received\n\nDentro do mesmo status, ordena por data de criação (mais antigas primeiro)."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"client_id\": \"{{client_id}}\",\n    \"vehicle_id\": \"{{vehicle_id}}\",\n    \"items\": [\n        {\n            \"type\": \"service\",\n            \"ref_id\": \"{{service_id}}\",\n            \"quantity\": 1\n        },\n        {\n            \"type\": \"part\",\n            \"ref_id\": \"{{part_id}}\",\n            \"quantity\": 1\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/admin/orders"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/orders/:order_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"orders",
+								":order_id"
+							],
+							"variable": [
+								{
+									"key": "order_id",
+									"value": "5a67808e-6870-4830-99d8-b4b11efaa79c"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Start Diagnosis",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/orders/:orderId/diagnosis:start",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"orders",
+								":orderId",
+								"diagnosis:start"
+							],
+							"variable": [
+								{
+									"key": "orderId",
+									"value": "5a67808e-6870-4830-99d8-b4b11efaa79c"
+								}
+							]
+						},
+						"description": "StartFragment\n\n### POST /admin/orders/:orderId/diagnosis:start\n\nObjetivo: Atualizar o status de uma ordem de serviço de um status Received (recebido) para In diagnosis (em diagnóstico).\n\n- O que faz:\n    \n    - Atualiza o statatus de uma ordem de serviços\n        \n    - **Transição:** `Received` -> `In diagnosis`"
+					},
+					"response": []
+				},
+				{
+					"name": "Send Budget",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/orders/:orderId/budget:send",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"orders",
+								":orderId",
+								"budget:send"
+							],
+							"variable": [
+								{
+									"key": "orderId",
+									"value": "5a67808e-6870-4830-99d8-b4b11efaa79c"
+								}
+							]
+						},
+						"description": "### POST /admin/orders/:orderId/budget:send\n\nObjetivo: Atualizar o status de uma ordem de serviço de um status In diagnosis (em diagnóstico) para Awaiting approval (aguardando aprovação).\n\n- O que faz:\n    \n    - Atualiza o statatus de uma ordem de serviços\n        \n    - **Transição:** `In diagnosis` -> `Awaiting approval`"
+					},
+					"response": []
+				},
+				{
+					"name": "Approve Order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/orders/:orderId/approve",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"orders",
+								":orderId",
+								"approve"
+							],
+							"variable": [
+								{
+									"key": "orderId",
+									"value": "5a67808e-6870-4830-99d8-b4b11efaa79c"
+								}
+							]
+						},
+						"description": "### POST /admin/orders/:orderId/aprove\n\nObjetivo: Atualizar o status de uma ordem de serviço de um status Awaiting approval (aguardando aprovação) para In execution (em execução).\n\n- O que faz:\n    \n    - Atualiza o statatus de uma ordem de serviços\n        \n    - **Transição:** `Awaiting approval` -> `In execution`"
+					},
+					"response": []
+				},
+				{
+					"name": "Finish Order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/orders/:orderId/finish",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"orders",
+								":orderId",
+								"finish"
+							],
+							"variable": [
+								{
+									"key": "orderId",
+									"value": "5a67808e-6870-4830-99d8-b4b11efaa79c"
+								}
+							]
+						},
+						"description": "### POST /admin/orders/:orderId/finish\n\nObjetivo: Atualizar o status de uma ordem de serviço de um status In execution para Completed (completado).\n\n- O que faz:\n    \n    - Atualiza o statatus de uma ordem de serviços\n        \n    - **Transição:** `In execution` -> `Completed`"
+					},
+					"response": []
+				},
+				{
+					"name": "Deliver Order",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/orders/:orderId/deliver",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"orders",
+								":orderId",
+								"deliver"
+							],
+							"variable": [
+								{
+									"key": "orderId",
+									"value": "de7ba2fd-883d-4b60-a73e-3ce92705d4c8"
+								}
+							]
+						},
+						"description": "### POST /admin/orders/:orderId/deliver\n\nObjetivo: Atualizar o status de uma ordem de serviço de um status genérico qualquer um dos disponíveis.\n\n- O que faz:\n    \n    - Atualiza o statatus de uma ordem de serviços"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Order Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"Completed\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/orders/:orderId/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"admin",
+								"orders",
+								":orderId",
+								"status"
+							],
+							"variable": [
+								{
+									"key": "orderId",
+									"value": "de7ba2fd-883d-4b60-a73e-3ce92705d4c8"
+								}
+							]
+						},
+						"description": "### PATCH /admin/orders/:orderId/status\n\nObjetivo: Atualizar o status de uma ordem de serviço de um status genérico qualquer um dos disponíveis.\n\n- O que faz:\n    \n    - Atualiza o statatus de uma ordem de serviços"
+					},
+					"response": []
+				},
+				{
+					"name": "Revenue Report",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{base_url}}/admin/reports/revenue",
+						"description": "### GET /admin/reports/revenue\n\nObjetivo: Calcular e exibir o faturamento total da oficina.\n\n- O que faz: Percorre todas as ordens de serviço cadastradas e soma o valor total (Total) de cada uma.\n    \n- Retorno: Um JSON contendo:\n    \n    - total_revenue : A soma de todos os valores das ordens.\n        \n    - order_count : O número total de ordens contabilizadas.\n        \n    - period : \"all_time\" (indica que é o total acumulado desde o início)."
+					},
+					"response": []
+				},
+				{
+					"name": "Avg Execution Time Report",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{base_url}}/admin/reports/avg-execution-time",
+						"description": "### GET /admin/reports/avg-execution-time\n\nObjetivo: Medir a eficiência da equipe técnica calculando o tempo médio que um serviço leva para ser concluído.\n\n- O que faz:\n    \n    - Filtra apenas as ordens que já foram finalizadas (Completed) ou entregues (Delivered).\n        \n    - Para cada ordem, calcula a duração: FinishedAt (data de conclusão) - StartedAt (data de início da execução).\n        \n    - Calcula a média dessas durações."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Public",
+			"item": [
+				{
+					"name": "Track Order",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/orders/:orderId/track",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"orders",
+								":orderId",
+								"track"
+							],
+							"variable": [
+								{
+									"key": "orderId",
+									"value": "de7ba2fd-883d-4b60-a73e-3ce92705d4c8"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Budget Response (Approve)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"approved\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/orders/:orderId/budget-response",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"orders",
+								":orderId",
+								"budget-response"
+							],
+							"variable": [
+								{
+									"key": "orderId",
+									"value": "de7ba2fd-883d-4b60-a73e-3ce92705d4c8"
+								}
+							]
+						},
+						"description": "### POST /orders/:orderId/budget-response\n\nEndpoint público (webhook) para aprovação ou rejeição externa de orçamento.\n\n- Body: {\"approved\": true} para aprovar ou {\"approved\": false} para rejeitar\n- Aprovação: Transição Awaiting Approval -> In Execution\n- Rejeição: Transição Awaiting Approval -> Received"
+					},
+					"response": []
+				},
+				{
+					"name": "Budget Response (Reject)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"approved\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/orders/:orderId/budget-response",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"orders",
+								":orderId",
+								"budget-response"
+							],
+							"variable": [
+								{
+									"key": "orderId",
+									"value": "de7ba2fd-883d-4b60-a73e-3ce92705d4c8"
+								}
+							]
+						},
+						"description": "### POST /orders/:orderId/budget-response\n\nEndpoint público (webhook) para rejeição de orçamento.\n\n- Body: {\"approved\": false}\n- Rejeição: Transição Awaiting Approval -> Received"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "client_id",
+			"value": ""
+		},
+		{
+			"key": "vehicle_id",
+			"value": ""
+		}
+	]
+}
